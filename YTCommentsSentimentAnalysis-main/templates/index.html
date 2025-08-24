@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}YouTube Comment Analyzer{% endblock %}
+
+{% block content %}
+        <div class="card">
+            <div class="card-header text-center">
+                <h2 class="mb-0">Analyze YouTube Comments</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert-container mb-3">
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                            <div>{{ error }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gemini_warning %}
+                    <div class="alert alert-warning" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>{{ gemini_warning }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <form method="POST" action="/">
+                    <div class="mb-3">
+                        <label for="youtube_url" class="form-label">YouTube Video URL:</label>
+                        <input type="text" class="form-control" id="youtube_url" name="youtube_url" 
+                            placeholder="https://www.youtube.com/watch?v=..." required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="max_comments" class="form-label">Maximum Comments to Analyze:</label>
+                        <input type="number" class="form-control" id="max_comments" name="max_comments" 
+                            value="100" min="1" max="500">
+                        <div class="form-text">Maximum 500 comments (higher values may take longer to process)</div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="use_fallback" name="use_fallback">
+                        <label class="form-check-label" for="use_fallback">Use simple keyword-based analysis instead of Gemini AI</label>
+                        <div class="form-text text-warning">Check this if you're experiencing API quota errors</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Analyze Comments</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">How it works</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Enter a valid YouTube video URL</li>
+                    <li>Choose how many comments to analyze</li>
+                    <li>Our system will fetch the comments from the video</li>
+                    <li>Each comment will be analyzed using Gemini AI</li>
+                    <li>Results will be displayed with sentiment analysis</li>
+                    <li>You can download the results as an Excel file</li>
+                </ol>
+            </div>
+        </div>
+{% endblock %}

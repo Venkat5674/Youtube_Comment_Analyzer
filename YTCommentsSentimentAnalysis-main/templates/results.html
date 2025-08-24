@@ -1,0 +1,236 @@
+{% extends "layout.html" %}
+
+{% block title %}YouTube Comment Analysis Results{% endblock %}
+
+{% block additional_styles %}
+        .sentiment-good {
+            color: #198754;
+        }
+        .sentiment-bad {
+            color: #dc3545;
+        }
+        .sentiment-neutral {
+            color: #6c757d;
+        }
+        .comment-card {
+            margin-bottom: 1rem;
+            border-left: 4px solid #dee2e6;
+        }
+        .comment-card.good {
+            border-left-color: #198754;
+        }
+        .comment-card.bad {
+            border-left-color: #dc3545;
+        }
+        .comment-card.neutral {
+            border-left-color: #6c757d;
+        }
+        .progress {
+            height: 25px;
+        }
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .progress-bar-good {
+            background-color: #198754;
+        }
+        .progress-bar-bad {
+            background-color: #dc3545;
+        }
+        .progress-bar-neutral {
+            background-color: #6c757d;
+        }
+{% endblock %}
+
+{% block content %}
+        <div class="card">
+            <div class="card-header text-center">
+                <h2 class="mb-0">Comment Analysis Results</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mb-4">
+                    <a href="/" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Analyzer
+                    </a>
+                    <a href="/download/{{ excel_file }}" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </a>
+                </div>
+                
+                <div class="alert-container mb-4">
+                    {% if api_error %}
+                    <div class="alert alert-warning" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>{{ api_error }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if used_fallback %}
+                    <div class="alert alert-info" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <div>Using simple keyword-based sentiment analysis instead of Gemini AI.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-light" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <div>Analysis Method: <strong>{{ analysis_method }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0 stats-col">
+                                <h3>{{ stats.total }}</h3>
+                                <p class="mb-0">Total Comments</p>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3 mb-md-0 stats-col">
+                                <h3 class="text-success">{{ stats.good }}</h3>
+                                <p class="mb-0">Good Comments</p>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3 mb-md-0 stats-col">
+                                <h3 class="text-danger">{{ stats.bad }}</h3>
+                                <p class="mb-0">Bad Comments</p>
+                            </div>
+                            <div class="col-6 col-md-3 stats-col">
+                                <h3 class="text-secondary">{{ stats.neutral }}</h3>
+                                <p class="mb-0">Neutral Comments</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress bar section -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <p class="mb-1"><strong>Good Comments: </strong>{{ stats.good_percent }}%</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                        {% if stats.good_percent > 0 %}
+                                        style="width: {{ stats.good_percent }}%"
+                                        {% else %}
+                                        style="width: 0%"
+                                        {% endif %}
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                
+                                <p class="mb-1"><strong>Bad Comments: </strong>{{ stats.bad_percent }}%</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-danger" role="progressbar" 
+                                        {% if stats.bad_percent > 0 %}
+                                        style="width: {{ stats.bad_percent }}%"
+                                        {% else %}
+                                        style="width: 0%"
+                                        {% endif %}
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                
+                                <p class="mb-1"><strong>Neutral Comments: </strong>{{ stats.neutral_percent }}%</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-secondary" role="progressbar" 
+                                        {% if stats.neutral_percent > 0 %}
+                                        style="width: {{ stats.neutral_percent }}%"
+                                        {% else %}
+                                        style="width: 0%"
+                                        {% endif %}
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-md-flex justify-content-between align-items-center">
+                            <h5 class="mb-2 mb-md-0">Comment Details</h5>
+                            <div class="btn-group filter-buttons" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-success filter-btn" data-filter="good">Good</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger filter-btn" data-filter="bad">Bad</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary filter-btn" data-filter="neutral">Neutral</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="d-none d-md-table-cell">Author</th>
+                                        <th>Comment</th>
+                                        <th>Sentiment</th>
+                                        <th class="d-none d-md-table-cell">Likes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for comment in comments %}
+                                    <tr class="comment-row {{ comment.sentiment.lower() }}">
+                                        <td class="d-none d-md-table-cell">{{ comment.author }}</td>
+                                        <td>
+                                            <div class="d-md-none"><strong>{{ comment.author }}</strong></div>
+                                            {{ comment.text|safe }}
+                                            <div class="d-md-none mt-1">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-hand-thumbs-up"></i> {{ comment.likes }} likes
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if comment.sentiment.lower() == 'good' %}
+                                                <span class="badge bg-success">{{ comment.sentiment }}</span>
+                                            {% elif comment.sentiment.lower() == 'bad' %}
+                                                <span class="badge bg-danger">{{ comment.sentiment }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ comment.sentiment }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="d-none d-md-table-cell">{{ comment.likes }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Comment filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const commentRows = document.querySelectorAll('.comment-row');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    commentRows.forEach(row => {
+                        if (filter === 'all' || row.classList.contains(filter)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}
