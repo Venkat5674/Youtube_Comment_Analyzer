@@ -1,14 +1,16 @@
 # YouTube Comments Sentiment Analyzer
 
-A Flask web application that fetches comments from YouTube videos, analyzes their sentiment using Google's Gemini AI, and exports the results to an Excel file.
+A Flask web application that fetches comments from YouTube videos, analyzes their sentiment using Google's Gemini AI (with fallback to keyword-based analysis), and exports the results to an Excel file.
 
 ## Features
 
 - Fetch comments from any public YouTube video
-- Classify comments as "Good" or "Bad" using Google's Gemini AI
+- Classify comments as "Good", "Bad", or "Neutral" using Google's Gemini AI
+- Fallback to keyword-based sentiment analysis when API quota is exceeded
 - Export results to Excel file
 - View sentiment statistics and analysis results in an interactive dashboard
 - Filter comments by sentiment
+- Mobile-responsive design for all device types
 
 ## Prerequisites
 
@@ -20,8 +22,8 @@ A Flask web application that fetches comments from YouTube videos, analyzes thei
 
 1. Clone this repository:
    ```
-   git clone <repository-url>
-   cd YTCommentsSentimentAnalysis
+   git clone https://github.com/Venkat5674/Youtube_Comment_Analyzer.git
+   cd Youtube_Comment_Analyzer
    ```
 
 2. Install required dependencies:
@@ -62,17 +64,38 @@ A Flask web application that fetches comments from YouTube videos, analyzes thei
 
 1. Enter a valid YouTube video URL in the input field
 2. Specify the maximum number of comments to analyze (default is 100)
-3. Click "Analyze Comments" button
-4. View the sentiment analysis results
-5. Download the Excel file with detailed results
+3. Optionally select the "Use simple keyword-based analysis" checkbox if you want to bypass Gemini AI
+4. Click "Analyze Comments" button
+5. View the sentiment analysis results with statistics
+6. Filter comments by sentiment (Good, Bad, Neutral)
+7. Download the Excel file with detailed results
+
+## Fallback Mechanism
+
+If the Gemini API quota is exceeded or unavailable, the application automatically falls back to a keyword-based sentiment analysis approach. This ensures the application works reliably even when API limits are reached.
 
 ## Tech Stack
 
 - Flask: Web framework
 - Google's Gemini AI: Sentiment analysis
 - YouTube Data API v3: Fetching comments
-- Pandas: Data processing and Excel export
+- Pandas & Openpyxl: Data processing and Excel export
 - Bootstrap 5: Frontend styling
+- Responsive design for mobile compatibility
+
+## Future Improvements
+
+- Add user authentication
+- Save analysis history
+- Implement more advanced sentiment analysis techniques
+- Add support for analyzing YouTube playlists
+- Include comment threading support
+
+## Acknowledgments
+
+- Google Gemini AI for sentiment analysis capabilities
+- YouTube Data API for comment fetching functionality
+- Bootstrap for responsive design components
 
 ## License
 
