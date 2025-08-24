@@ -2,6 +2,8 @@
 
 A Flask web application that fetches comments from YouTube videos, analyzes their sentiment using Google's Gemini AI (with fallback to keyword-based analysis), and exports the results to an Excel file.
 
+*Note: Add screenshots to the static/images directory once the application is running.*
+
 ## Features
 
 - Fetch comments from any public YouTube video
